@@ -1,0 +1,310 @@
+--------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  \\tsclient\sabrina\Desktop\STAT 302\Final Group Stats Project\Final Group Stats Project.log
+  log type:  text
+ opened on:  25 Apr 2019, 00:06:51
+
+. import delimited "\\tsclient\sabrina\Downloads\Traffic Data - After Deletions, Round 3.csv"
+no; data in memory would be lost
+r(4);
+
+. import delimited "\\tsclient\sabrina\Downloads\Traffic Data - After Deletions, Round 3.csv", clear 
+(8 vars, 125 obs)
+
+. rename estimatedroadtrafficdeathrateper trafficdeath
+
+. rename alcoholconsumptionperadult152008 alc
+
+. rename motorvehiclesnot2wheelersper1000 vehicles
+
+. rename populationabove602010 above60
+
+. rename gdppercapitafixed2000us2011 gdp
+
+. rename urbanpopulationoftotal2011 urbanpop
+
+. tabulate whoregionstring,generate(region)
+
+  WHO region (string) |      Freq.     Percent        Cum.
+----------------------+-----------------------------------
+               Africa |         31       24.80       24.80
+             Americas |         20       16.00       40.80
+Eastern Mediterranean |          9        7.20       48.00
+               Europe |         45       36.00       84.00
+      South-East Asia |          6        4.80       88.80
+      Western Pacific |         14       11.20      100.00
+----------------------+-----------------------------------
+                Total |        125      100.00
+
+. rename region1 Africa
+
+. rename region2 Americas
+
+. rename region3 Mediterranean
+
+. rename region4 Europe
+
+. rename region5 SEA
+
+. rename region6 WesternPacific
+
+. rename SEA SoutheastAsia
+
+. drop Americas
+
+. graph matrix alc vehicles above60 gdp urbanpop Africa Mediterranean Europe SoutheastAsia WesternPacific trafficdea
+> th, half
+
+. generate lntrafficdeath = ln(trafficdeath)
+
+. graph matrix alc vehicles above60 gdp urbanpop Africa Mediterranean Europe SoutheastAsia WesternPacific lntrafficd
+> eath, half
+
+. generate lnurbanpop = ln(urbanpop)
+
+. graph matrix alc vehicles above60 gdp lnurbanpop Africa Mediterranean Europe SoutheastAsia WesternPacific trafficd
+> eath, half
+
+. graph matrix alc vehicles above60 gdp urbanpop Africa Mediterranean Europe SoutheastAsia WesternPacific lntrafficd
+> eath, half
+
+. graph matrix alc vehicles above60 gdp lnurbanpop Africa Mediterranean Europe SoutheastAsia WesternPacific lntraffi
+> cdeath, half
+
+. generate lngdp = ln(gdp)
+(1 missing value generated)
+
+. graph matrix alc vehicles above60 lngdp urbanpop Africa Mediterranean Europe SoutheastAsia WesternPacific lntraffi
+> cdeath, half
+
+. generate lnabove60 = ln(above60)
+(1 missing value generated)
+
+. graph matrix alc vehicles lnabove60 gdp urbanpop Africa Mediterranean Europe SoutheastAsia WesternPacific lntraffi
+> cdeath, half
+
+. generate lnalc = ln(alc)
+(1 missing value generated)
+
+. generate lnvehicles = ln(vehicles)
+
+. graph matrix lnalc lnvehicles lnabove60 lngdp urbanpop Africa Mediterranean Europe SoutheastAsia WesternPacific ln
+> trafficdeath, half
+
+. graph matrix lnalc lnvehicles lnabove60 lngdp urbanpop Africa Mediterranean Europe SoutheastAsia WesternPacific tr
+> afficdeath, half
+
+. regress trafficdeath lnalc lnvehicles lnabove60 lngdp urbanpop Africa Mediterranean Europe SoutheastAsia WesternPa
+> cific
+
+      Source |       SS           df       MS      Number of obs   =       122
+-------------+----------------------------------   F(10, 111)      =     49.03
+       Model |  8705.64379        10  870.564379   Prob > F        =    0.0000
+    Residual |  1970.94458       111  17.7562574   R-squared       =    0.8154
+-------------+----------------------------------   Adj R-squared   =    0.7988
+       Total |  10676.5884       121  88.2362675   Root MSE        =    4.2138
+
+--------------------------------------------------------------------------------
+  trafficdeath |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------+----------------------------------------------------------------
+         lnalc |   1.250815   .5779512     2.16   0.033     .1055663    2.396064
+    lnvehicles |  -.2754868     .54439    -0.51   0.614    -1.354232    .8032585
+     lnabove60 |  -.2131048   1.218769    -0.17   0.862    -2.628177    2.201967
+         lngdp |   -2.78756   .5326588    -5.23   0.000    -3.843058   -1.732061
+      urbanpop |   .0522239   .0287238     1.82   0.072    -.0046943     .109142
+        Africa |   7.204495   1.423797     5.06   0.000     4.383146    10.02584
+ Mediterranean |   4.870775   2.240661     2.17   0.032     .4307549    9.310795
+        Europe |  -7.264695   1.398518    -5.19   0.000    -10.03595   -4.493439
+ SoutheastAsia |  -1.929583   2.669198    -0.72   0.471    -7.218776     3.35961
+WesternPacific |  -5.325313   1.553432    -3.43   0.001    -8.403543   -2.247084
+         _cons |   36.08798   3.014822    11.97   0.000     30.11391    42.06205
+--------------------------------------------------------------------------------
+
+. rvfplot
+
+. graph export "\\tsclient\sabrina\Desktop\STAT 302\Final Group Stats Project\residuals vs. fitted plot.png", as(png
+> ) replace
+(note: file \\tsclient\sabrina\Desktop\STAT 302\Final Group Stats Project\residuals vs. fitted plot.png not found)
+(file \\tsclient\sabrina\Desktop\STAT 302\Final Group Stats Project\residuals vs. fitted plot.png written in PNG for
+> mat)
+
+. regress trafficdeath lnalc lngdp Africa Mediterranean Europe WesternPacific
+
+      Source |       SS           df       MS      Number of obs   =       123
+-------------+----------------------------------   F(6, 116)       =     77.92
+       Model |  8660.92111         6  1443.48685   Prob > F        =    0.0000
+    Residual |  2148.90703       116  18.5250606   R-squared       =    0.8012
+-------------+----------------------------------   Adj R-squared   =    0.7909
+       Total |  10809.8281       122  88.6051487   Root MSE        =    4.3041
+
+--------------------------------------------------------------------------------
+  trafficdeath |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------+----------------------------------------------------------------
+         lnalc |   1.515683   .4909796     3.09   0.003     .5432364     2.48813
+         lngdp |   -2.37662   .3109733    -7.64   0.000    -2.992541   -1.760698
+        Africa |   7.768789   1.277891     6.08   0.000     5.237764    10.29981
+ Mediterranean |   6.219208   1.968432     3.16   0.002     2.320481    10.11794
+        Europe |  -7.467748   1.160414    -6.44   0.000    -9.766093   -5.169402
+WesternPacific |  -5.809428   1.439425    -4.04   0.000     -8.66039   -2.958466
+         _cons |   33.40004   2.550646    13.09   0.000     28.34816    38.45191
+--------------------------------------------------------------------------------
+
+. regress trafficdeath lnalc lngdp urbanpop Africa Mediterranean Europe WesternPacific
+
+      Source |       SS           df       MS      Number of obs   =       123
+-------------+----------------------------------   F(7, 115)       =     68.94
+       Model |  8729.53949         7  1247.07707   Prob > F        =    0.0000
+    Residual |  2080.28865       115  18.0894665   R-squared       =    0.8076
+-------------+----------------------------------   Adj R-squared   =    0.7958
+       Total |  10809.8281       122  88.6051487   Root MSE        =    4.2532
+
+--------------------------------------------------------------------------------
+  trafficdeath |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------+----------------------------------------------------------------
+         lnalc |   1.441347   .4866718     2.96   0.004     .4773441     2.40535
+         lngdp |  -2.922778    .416013    -7.03   0.000     -3.74682   -2.098737
+      urbanpop |   .0526332   .0270242     1.95   0.054    -.0008965    .1061628
+        Africa |   7.940305   1.265845     6.27   0.000     5.432911     10.4477
+ Mediterranean |   5.721141    1.96189     2.92   0.004     1.835015    9.607267
+        Europe |  -7.441213   1.146771    -6.49   0.000    -9.712745   -5.169681
+WesternPacific |  -5.692907   1.423659    -4.00   0.000      -8.5129   -2.872913
+         _cons |   34.79431   2.620173    13.28   0.000     29.60425    39.98437
+--------------------------------------------------------------------------------
+
+. regress trafficdeath lnalc lngdp Africa Mediterranean Europe WesternPacific
+
+      Source |       SS           df       MS      Number of obs   =       123
+-------------+----------------------------------   F(6, 116)       =     77.92
+       Model |  8660.92111         6  1443.48685   Prob > F        =    0.0000
+    Residual |  2148.90703       116  18.5250606   R-squared       =    0.8012
+-------------+----------------------------------   Adj R-squared   =    0.7909
+       Total |  10809.8281       122  88.6051487   Root MSE        =    4.3041
+
+--------------------------------------------------------------------------------
+  trafficdeath |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------+----------------------------------------------------------------
+         lnalc |   1.515683   .4909796     3.09   0.003     .5432364     2.48813
+         lngdp |   -2.37662   .3109733    -7.64   0.000    -2.992541   -1.760698
+        Africa |   7.768789   1.277891     6.08   0.000     5.237764    10.29981
+ Mediterranean |   6.219208   1.968432     3.16   0.002     2.320481    10.11794
+        Europe |  -7.467748   1.160414    -6.44   0.000    -9.766093   -5.169402
+WesternPacific |  -5.809428   1.439425    -4.04   0.000     -8.66039   -2.958466
+         _cons |   33.40004   2.550646    13.09   0.000     28.34816    38.45191
+--------------------------------------------------------------------------------
+
+. regress trafficdeath lnalc lnvehicles lnabove60 lngdp urbanpop Africa Mediterranean Europe SoutheastAsia WesternPa
+> cific
+
+      Source |       SS           df       MS      Number of obs   =       122
+-------------+----------------------------------   F(10, 111)      =     49.03
+       Model |  8705.64379        10  870.564379   Prob > F        =    0.0000
+    Residual |  1970.94458       111  17.7562574   R-squared       =    0.8154
+-------------+----------------------------------   Adj R-squared   =    0.7988
+       Total |  10676.5884       121  88.2362675   Root MSE        =    4.2138
+
+--------------------------------------------------------------------------------
+  trafficdeath |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------+----------------------------------------------------------------
+         lnalc |   1.250815   .5779512     2.16   0.033     .1055663    2.396064
+    lnvehicles |  -.2754868     .54439    -0.51   0.614    -1.354232    .8032585
+     lnabove60 |  -.2131048   1.218769    -0.17   0.862    -2.628177    2.201967
+         lngdp |   -2.78756   .5326588    -5.23   0.000    -3.843058   -1.732061
+      urbanpop |   .0522239   .0287238     1.82   0.072    -.0046943     .109142
+        Africa |   7.204495   1.423797     5.06   0.000     4.383146    10.02584
+ Mediterranean |   4.870775   2.240661     2.17   0.032     .4307549    9.310795
+        Europe |  -7.264695   1.398518    -5.19   0.000    -10.03595   -4.493439
+ SoutheastAsia |  -1.929583   2.669198    -0.72   0.471    -7.218776     3.35961
+WesternPacific |  -5.325313   1.553432    -3.43   0.001    -8.403543   -2.247084
+         _cons |   36.08798   3.014822    11.97   0.000     30.11391    42.06205
+--------------------------------------------------------------------------------
+
+. display Ftail(10,111,49.0285)
+4.000e-36
+
+. drop if countrystring = Kiribati
+type mismatch
+r(109);
+
+. drop if countrystring == "Kiribati"
+(1 observation deleted)
+
+. drop if countrystring == "SÃ£o TomÃ© and PrÃ­ncipe"
+(1 observation deleted)
+
+. regress trafficdeath lnalc lnvehicles lnabove60 lngdp urbanpop Africa Mediterranean Europe SoutheastAsia WesternPa
+> cific
+
+      Source |       SS           df       MS      Number of obs   =       122
+-------------+----------------------------------   F(10, 111)      =     49.03
+       Model |  8705.64379        10  870.564379   Prob > F        =    0.0000
+    Residual |  1970.94458       111  17.7562574   R-squared       =    0.8154
+-------------+----------------------------------   Adj R-squared   =    0.7988
+       Total |  10676.5884       121  88.2362675   Root MSE        =    4.2138
+
+--------------------------------------------------------------------------------
+  trafficdeath |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------+----------------------------------------------------------------
+         lnalc |   1.250815   .5779512     2.16   0.033     .1055663    2.396064
+    lnvehicles |  -.2754868     .54439    -0.51   0.614    -1.354232    .8032585
+     lnabove60 |  -.2131048   1.218769    -0.17   0.862    -2.628177    2.201967
+         lngdp |   -2.78756   .5326588    -5.23   0.000    -3.843058   -1.732061
+      urbanpop |   .0522239   .0287238     1.82   0.072    -.0046943     .109142
+        Africa |   7.204495   1.423797     5.06   0.000     4.383146    10.02584
+ Mediterranean |   4.870775   2.240661     2.17   0.032     .4307549    9.310795
+        Europe |  -7.264695   1.398518    -5.19   0.000    -10.03595   -4.493439
+ SoutheastAsia |  -1.929583   2.669198    -0.72   0.471    -7.218776     3.35961
+WesternPacific |  -5.325313   1.553432    -3.43   0.001    -8.403543   -2.247084
+         _cons |   36.08798   3.014822    11.97   0.000     30.11391    42.06205
+--------------------------------------------------------------------------------
+
+. regress trafficdeath lnalc lngdp Africa Mediterranean Europe WesternPacific
+
+      Source |       SS           df       MS      Number of obs   =       122
+-------------+----------------------------------   F(6, 115)       =     80.22
+       Model |  8617.71732         6  1436.28622   Prob > F        =    0.0000
+    Residual |  2058.87105       115  17.9032265   R-squared       =    0.8072
+-------------+----------------------------------   Adj R-squared   =    0.7971
+       Total |  10676.5884       121  88.2362675   Root MSE        =    4.2312
+
+--------------------------------------------------------------------------------
+  trafficdeath |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+---------------+----------------------------------------------------------------
+         lnalc |   1.466633   .4831642     3.04   0.003     .5095782    2.423689
+         lngdp |  -2.443325   .3071531    -7.95   0.000    -3.051736   -1.834913
+        Africa |   7.648492   1.257405     6.08   0.000     5.157814    10.13917
+ Mediterranean |   6.149057   1.935365     3.18   0.002     2.315471    9.982643
+        Europe |  -7.367873   1.141641    -6.45   0.000    -9.629243   -5.106503
+WesternPacific |  -5.084127   1.451551    -3.50   0.001    -7.959369   -2.208884
+         _cons |   34.00762   2.522067    13.48   0.000     29.01189    39.00334
+--------------------------------------------------------------------------------
+
+. display Ftail(4,111,1.2380)
+.29898249
+
+. generate residuals
+=exp required
+r(100);
+
+. generate residuals, res
+=exp required
+r(100);
+
+. predict res, residuals
+(1 missing value generated)
+
+. qnorm residuals
+variable residuals not found
+r(111);
+
+. qqnorm res
+command qqnorm is unrecognized
+r(199);
+
+. qnorm res
+
+. graph export "\\tsclient\sabrina\Desktop\STAT 302\Final Group Stats Project\normal plot of residuals.png", as(png)
+>  replace
+(note: file \\tsclient\sabrina\Desktop\STAT 302\Final Group Stats Project\normal plot of residuals.png not found)
+(file \\tsclient\sabrina\Desktop\STAT 302\Final Group Stats Project\normal plot of residuals.png written in PNG form
+> at)
+
